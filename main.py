@@ -11,7 +11,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
-from proxies2 import proxies
+from proxies import proxies
 import requests
 import selenium
 
@@ -59,7 +59,7 @@ headers = {
 
 headers_code = {
     'Host': 'i.instagram.com',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:81.0) Gecko/20100101 Firefox/81.0',
+    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.81 Safari/537.36',
     'Accept': '*/*',
     'Accept-Language': 'pl,en-US;q=0.7,en;q=0.3',
     'Accept-Encoding': 'gzip, deflate, br',
@@ -76,11 +76,8 @@ headers_code = {
     'TE': 'Trailers'
 }
 
-headers_login_to_mail = {
-}
 
-
-def generateClientId():
+def generate_client_id():
     url = 'https://www.instagram.com/web/__mid/'
 
     with requests.session() as ses:
@@ -99,13 +96,11 @@ def generate_csrf_token():
         ig_did = json_response['device_id']
     return csrf_token, ig_did
 
-
+email = 'janusz.skowyr@o2.pl'
 full_name = 'janusz skowyr2'
 username = 'janusz.skowyr.222'
-# password = 'owlcity1'
 
-
-client_id = generateClientId()
+client_id = generate_client_id()
 csrf_token, ig_did = generate_csrf_token()
 
 print('client_id (mid): ', client_id)
@@ -121,7 +116,7 @@ headers_code['Cookie'] = f'mid={client_id}; csrftoken={csrf_token}; ig_did={ig_d
 
 
 data = {
-    'email': '',
+    'email': email,
     'enc_password': '#PWD_INSTAGRAM_BROWSER:10:1602024788:AXlQABuVy/rCsRztKdkOtDtS25flS2eH5HMggtqSnYI31gQ8Kl9Z3gQ3XUgxHnuIjqdtnBHOvDexmb2xmILEr2L87vOElD1cXEvBejMk9cFE91/HM0JP4X/vqAzdvwHUsTWszieoiLQKDRhJ',
     'username': username,
     'first_name': full_name.replace(' ', '+'),
@@ -129,96 +124,117 @@ data = {
     'seamless_login_enabled': '1',
     'opt_into_one_tap': 'false',
     'month': '7',
-    'day': '12',
-    'year': '1990',
-    'tos_version': 'eu'
+    'day': '18',
+    'year': '2000'
 }
+
+data2 = {
+    'email': email,
+    'enc_password': '#PWD_INSTAGRAM_BROWSER:10:1602024788:AXlQABuVy/rCsRztKdkOtDtS25flS2eH5HMggtqSnYI31gQ8Kl9Z3gQ3XUgxHnuIjqdtnBHOvDexmb2xmILEr2L87vOElD1cXEvBejMk9cFE91/HM0JP4X/vqAzdvwHUsTWszieoiLQKDRhJ',
+    'username': username,
+    'first_name': full_name.replace(' ', '+'),
+    'month': '7',
+    'day': '18',
+    'year': '2000',
+    'client_id': client_id,
+    'seamless_login_enabled': '1'
+}
+
 data_send_code = {
     'device_id': ig_did,
-    'email': ''
+    'email': email
 }
+
 data_verify_code = {
     'code': '',
     'device_id': ig_did,
-    'email': ''
+    'email': email
 }
 
-cr_url = 'https://www.instagram.com/accounts/web_create_ajax/attempt/'
+cr_url = 'https://www.instagram.com/accounts/web_create_ajax/'
 code_url = 'https://i.instagram.com/api/v1/accounts/send_verify_email/'
 ver_url = 'https://i.instagram.com/api/v1/accounts/check_confirmation_code/'
 
-mail_url = 'https://temp-mail.org/pl/'
-driver = getDriver()
-random_mail = ''
 
-try:
-    driver.get(mail_url)
-    # inside the second tab
-    reset_button = WebDriverWait(driver, 8).until(
-        EC.presence_of_element_located((By.ID, 'click-to-delete')))
-    reset_button.click()
-
-    time.sleep(5)
-
-    # copy email to clipboard
-    ActionChains(driver).move_to_element(driver.find_element_by_id('click-to-copy')).click().perform()
-    random_mail = pyperclip.paste()
-except Exception as e:
-    print(e)
-    driver.quit()
-
-data['email'] = data_send_code['email'] = data_verify_code['email'] = random_mail
-
-print('random_mail: ', random_mail)
+# selenium part
+# mail_url = 'https://temp-mail.org/pl/'
+# driver = getDriver()
+# random_mail = ''
+#
+# try:
+#     driver.get(mail_url)
+#     # inside the second tab
+#     reset_button = WebDriverWait(driver, 8).until(
+#         EC.presence_of_element_located((By.ID, 'click-to-delete')))
+#     reset_button.click()
+#
+#     time.sleep(5)
+#
+#     # copy email to clipboard
+#     ActionChains(driver).move_to_element(driver.find_element_by_id('click-to-copy')).click().perform()
+#     random_mail = pyperclip.paste()
+# except Exception as e:
+#     print(e)
+#     driver.quit()
+#
+# data['email'] = data_send_code['email'] = data_verify_code['email'] = random_mail
+#
+# print('random_mail: ', random_mail)
 
 with requests.session() as ses:
-    # proxy_choice = random.choice(proxies)
-    # proxy = {"http": proxy_choice, "https": proxy_choice, 'ftp': proxy_choice}
-    # print("proxy:", proxy)
-    # # g = ses.get('https://www.instagram.com/accounts/emailsignup/')
+    proxy_choice = random.choice(proxies)
+    proxy = {"http": proxy_choice, "https": proxy_choice}
+    print("proxy:", proxy)
 
 
-    p1 = ses.post(cr_url, headers=headers, data=data)
+    p1 = ses.post(cr_url, headers=headers, data=data, proxies=proxy)
     print('p1 response code: ', p1)
     with open('response1.html', 'w') as f:
         f.write(p1.text)
 
+    time.sleep(3)
 
-    # time.sleep(5)
+    # p2 = ses.post(cr_url, headers=headers, data=data2)
+    # print('p2 response code: ', p2)
+    # with open('response2.html', 'w') as f:
+    #     f.write(p2.text)
 
-    p_send_mail = ses.post(code_url, headers=headers_code, data=data_send_code)
+    time.sleep(3)
+
+    p_send_mail = ses.post(code_url, headers=headers_code, data=data_send_code, proxies=proxy)
     print('p_send_mail response code: ', p_send_mail)
-    with open('response2.html', 'w') as f:
+    with open('response3.html', 'w') as f:
         f.write(p_send_mail.text)
 
 
-    #getting activation code from random mail
-
-    # wait for 2 minutes for mail to read activation code from it
-    WebDriverWait(driver, 120).until(
-        EC.presence_of_element_located(
-            (By.XPATH, '/html/body/main/div[1]/div/div[3]/div[2]/div/div[1]/div/div[4]/ul/li[2]/div[1]')))
-
-    # open mail
-    ActionChains(driver).move_to_element(driver.find_element_by_xpath(
-        '/html/body/main/div[1]/div/div[3]/div[2]/div/div[1]/div/div[4]/ul/li[2]/div[1]/a')).click().perform()
-
-    # get activation code from the mail
-    _mail_code = WebDriverWait(driver, 5).until(
-        EC.presence_of_element_located((By.XPATH,
-                                        '//*[@id="email_content"]/table/tbody/tr[4]/td/table/tbody/tr/td/table/tbody/tr[2]/td[2]/table/tbody/tr[2]/td[2]'))
-    ).text
-
-    data_verify_code['code'] = _mail_code
-
-    print("_mail_code:", _mail_code)
+    # #getting activation code from random mail
+    #
+    # # wait for 2 minutes for mail to read activation code from it
+    # WebDriverWait(driver, 120).until(
+    #     EC.presence_of_element_located(
+    #         (By.XPATH, '/html/body/main/div[1]/div/div[3]/div[2]/div/div[1]/div/div[4]/ul/li[2]/div[1]')))
+    #
+    # # open mail
+    # ActionChains(driver).move_to_element(driver.find_element_by_xpath(
+    #     '/html/body/main/div[1]/div/div[3]/div[2]/div/div[1]/div/div[4]/ul/li[2]/div[1]/a')).click().perform()
+    #
+    # # get activation code from the mail
+    # _mail_code = WebDriverWait(driver, 5).until(
+    #     EC.presence_of_element_located((By.XPATH,
+    #                                     '//*[@id="email_content"]/table/tbody/tr[4]/td/table/tbody/tr/td/table/tbody/tr[2]/td[2]/table/tbody/tr[2]/td[2]'))
+    # ).text
+    #
+    # data_verify_code['code'] = _mail_code
+    #
+    # print("_mail_code:", _mail_code)
 
     # driver.quit()
 
+    data_verify_code['code'] = input("enter activation code from mail: ")
+
     headers_code['Content-Length'] = '126'
 
-    p_verify_code = ses.post(ver_url, headers=headers_code, data=data_verify_code)
+    p_verify_code = ses.post(ver_url, headers=headers_code, data=data_verify_code, proxies=proxy)
     print('p_verify_mail response code: ', p_verify_code)
-    with open('response3.html', 'w') as f:
+    with open('response4.html', 'w') as f:
         f.write(p_verify_code.text)
-
