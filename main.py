@@ -123,14 +123,13 @@ data = {
     'client_id': client_id,
     'seamless_login_enabled': '1',
     'opt_into_one_tap': 'false',
-    'month': '7',
-    'day': '18',
-    'year': '2000'
+
+    'tos_version': 'eu'
 }
 
 data2 = {
     'email': email,
-    'enc_password': '#PWD_INSTAGRAM_BROWSER:10:1602024788:AXlQABuVy/rCsRztKdkOtDtS25flS2eH5HMggtqSnYI31gQ8Kl9Z3gQ3XUgxHnuIjqdtnBHOvDexmb2xmILEr2L87vOElD1cXEvBejMk9cFE91/HM0JP4X/vqAzdvwHUsTWszieoiLQKDRhJ',
+    'enc_password': '#PWD_INSTAGRAM_BROWSER:10:1602196607:AXxQANwZrbC+m3lILRHVW10DZ4XMnIG2ZyvFgJvXIQ/bLmcqX83VWbvSi/1nuIonOgr4MlX9+s1UuuSZRj+Ps6QidBBuN0iKQgkih1fieNwCaFs1ctgciJDFg0CkjxZVyw3Of5lsUdm5NuIw',
     'username': username,
     'first_name': full_name.replace(' ', '+'),
     'month': '7',
@@ -151,7 +150,7 @@ data_verify_code = {
     'email': email
 }
 
-cr_url = 'https://www.instagram.com/accounts/web_create_ajax/'
+cr_url = 'https://www.instagram.com/accounts/web_create_ajax/attempt/'
 code_url = 'https://i.instagram.com/api/v1/accounts/send_verify_email/'
 ver_url = 'https://i.instagram.com/api/v1/accounts/check_confirmation_code/'
 
@@ -194,10 +193,10 @@ with requests.session() as ses:
 
     time.sleep(3)
 
-    # p2 = ses.post(cr_url, headers=headers, data=data2)
-    # print('p2 response code: ', p2)
-    # with open('response2.html', 'w') as f:
-    #     f.write(p2.text)
+    p2 = ses.post(cr_url, headers=headers, data=data2, proxies=proxy)
+    print('p2 response code: ', p2)
+    with open('response2.html', 'w') as f:
+        f.write(p2.text)
 
     time.sleep(3)
 
@@ -207,34 +206,35 @@ with requests.session() as ses:
         f.write(p_send_mail.text)
 
 
-    # #getting activation code from random mail
+    # # #getting activation code from random mail
+    # #
+    # # # wait for 2 minutes for mail to read activation code from it
+    # # WebDriverWait(driver, 120).until(
+    # #     EC.presence_of_element_located(
+    # #         (By.XPATH, '/html/body/main/div[1]/div/div[3]/div[2]/div/div[1]/div/div[4]/ul/li[2]/div[1]')))
+    # #
+    # # # open mail
+    # # ActionChains(driver).move_to_element(driver.find_element_by_xpath(
+    # #     '/html/body/main/div[1]/div/div[3]/div[2]/div/div[1]/div/div[4]/ul/li[2]/div[1]/a')).click().perform()
+    # #
+    # # # get activation code from the mail
+    # # _mail_code = WebDriverWait(driver, 5).until(
+    # #     EC.presence_of_element_located((By.XPATH,
+    # #                                     '//*[@id="email_content"]/table/tbody/tr[4]/td/table/tbody/tr/td/table/tbody/tr[2]/td[2]/table/tbody/tr[2]/td[2]'))
+    # # ).text
+    # #
+    # # data_verify_code['code'] = _mail_code
+    # #
+    # # print("_mail_code:", _mail_code)
     #
-    # # wait for 2 minutes for mail to read activation code from it
-    # WebDriverWait(driver, 120).until(
-    #     EC.presence_of_element_located(
-    #         (By.XPATH, '/html/body/main/div[1]/div/div[3]/div[2]/div/div[1]/div/div[4]/ul/li[2]/div[1]')))
-    #
-    # # open mail
-    # ActionChains(driver).move_to_element(driver.find_element_by_xpath(
-    #     '/html/body/main/div[1]/div/div[3]/div[2]/div/div[1]/div/div[4]/ul/li[2]/div[1]/a')).click().perform()
-    #
-    # # get activation code from the mail
-    # _mail_code = WebDriverWait(driver, 5).until(
-    #     EC.presence_of_element_located((By.XPATH,
-    #                                     '//*[@id="email_content"]/table/tbody/tr[4]/td/table/tbody/tr/td/table/tbody/tr[2]/td[2]/table/tbody/tr[2]/td[2]'))
-    # ).text
-    #
-    # data_verify_code['code'] = _mail_code
-    #
-    # print("_mail_code:", _mail_code)
-
-    # driver.quit()
+    # # driver.quit()
 
     data_verify_code['code'] = input("enter activation code from mail: ")
 
-    headers_code['Content-Length'] = '126'
+    # headers_code['Content-Length'] = '126'
 
     p_verify_code = ses.post(ver_url, headers=headers_code, data=data_verify_code, proxies=proxy)
     print('p_verify_mail response code: ', p_verify_code)
     with open('response4.html', 'w') as f:
         f.write(p_verify_code.text)
+
